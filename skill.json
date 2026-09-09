@@ -1,0 +1,17 @@
+{
+  "name": "genpark-min-cost-max-flow-successive-shortest-path-skill",
+  "version": "1.0.0",
+  "description": "Autonomous Agent Min-Cost Max-Flow (MCMF) Solver via Successive Shortest Path and Residual Network SPFA",
+  "entry_point": "client.py",
+  "example": "example_usage.py",
+  "mcp_server": "mcp_server.py",
+  "dependencies": [],
+  "tags": [
+    "genpark-skill",
+    "agentic-ai",
+    "operations-research",
+    "graph-theory",
+    "min-cost-max-flow",
+    "network-flow"
+  ]
+}
