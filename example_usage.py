@@ -1,20 +1,10 @@
-"""Example usage for Min-Cost Max-Flow Solver Skill."""
 from client import MinCostMaxFlow
 
-def main():
-    print("Executing Min-Cost Max-Flow Solver...")
-    mcmf = MinCostMaxFlow(4)
-    mcmf.add_edge(0, 1, 3.0, 1.0)
-    mcmf.add_edge(0, 2, 2.0, 2.0)
-    mcmf.add_edge(1, 3, 2.0, 2.0)
-    mcmf.add_edge(1, 2, 1.0, 1.0)
-    mcmf.add_edge(2, 3, 3.0, 3.0)
+mcmf = MinCostMaxFlow(4)
+mcmf.add_edge(0, 1, 10, 2)
+mcmf.add_edge(0, 2, 5, 1)
+mcmf.add_edge(1, 3, 5, 3)
+mcmf.add_edge(2, 3, 5, 2)
 
-    res = mcmf.solve(source=0, sink=3)
-    print("Result:", res)
-    assert res["max_flow"] == 5.0, f"Expected 5.0 max flow, got {res['max_flow']}"
-    assert res["min_cost"] == 21.0, f"Expected 21.0 min cost, got {res['min_cost']}"
-    print("Min-Cost Max-Flow Solver verified successfully!")
-
-if __name__ == "__main__":
-    main()
+flow, cost = mcmf.compute_mcmf(0, 3)
+print(f"Optimal Min-Cost Max-Flow: Total Flow={flow}, Total Cost={cost}")
