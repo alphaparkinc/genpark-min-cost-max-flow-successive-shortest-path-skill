@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "genpark-min-cost-max-flow-successive-shortest-path-skill"
+version = "1.0.0"
+description = "Minimum-Cost Maximum-Flow (MCMF) engine using successive shortest path with SPFA residual tracking"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
