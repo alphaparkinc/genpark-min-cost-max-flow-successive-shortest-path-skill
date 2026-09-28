@@ -1,0 +1,6 @@
+name: genpark-min-cost-max-flow-successive-shortest-path-skill
+version: 1.0.0
+description: Minimum-Cost Maximum-Flow (MCMF) engine using successive shortest path with SPFA residual tracking
+command: python
+args:
+  - mcp_server.py
