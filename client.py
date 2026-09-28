@@ -1,91 +1,74 @@
+"""Min-Cost Max-Flow (MCMF) Successive Shortest Path Engine.
+100% Python Standard Library.
 """
-Autonomous Agent Min-Cost Max-Flow (MCMF) Solver Skill
-Pure Python Standard Library implementation using Successive Shortest Path & SPFA.
-"""
-from typing import List, Dict, Any
+
+import collections
 
 class MinCostMaxFlow:
-    """
-    Min-Cost Max-Flow Solver using Successive Shortest Path with SPFA.
-    """
-    def __init__(self, num_nodes: int):
+    """Successive Shortest Path algorithm for Min-Cost Max-Flow with SPFA."""
+    class Edge:
+        def __init__(self, u, v, cap, cost):
+            self.u = u
+            self.v = v
+            self.cap = cap
+            self.flow = 0
+            self.cost = cost
+            self.rev = None
+
+    def __init__(self, num_nodes):
         self.n = num_nodes
         self.adj = [[] for _ in range(num_nodes)]
-        self.edges = []
 
-    def add_edge(self, u: int, v: int, cap: float, cost: float):
-        idx1 = len(self.edges)
-        idx2 = idx1 + 1
-        e1 = {"from": u, "to": v, "cap": float(cap), "flow": 0.0, "cost": float(cost), "rev": idx2}
-        e2 = {"from": v, "to": u, "cap": 0.0, "flow": 0.0, "cost": -float(cost), "rev": idx1}
-        self.adj[u].append(idx1)
-        self.edges.append(e1)
-        self.adj[v].append(idx2)
-        self.edges.append(e2)
+    def add_edge(self, u, v, cap, cost):
+        e1 = self.Edge(u, v, cap, cost)
+        e2 = self.Edge(v, u, 0, -cost)
+        e1.rev = e2
+        e2.rev = e1
+        self.adj[u].append(e1)
+        self.adj[v].append(e2)
 
-    def solve(self, source: int, sink: int) -> Dict[str, Any]:
-        max_flow = 0.0
-        min_cost = 0.0
+    def compute_mcmf(self, s, t):
+        tot_flow = 0
+        tot_cost = 0
 
         while True:
             dist = [float("inf")] * self.n
-            parent_edge = [-1] * self.n
+            parent = [None] * self.n
             in_queue = [False] * self.n
-            queue = [source]
-            dist[source] = 0.0
-            in_queue[source] = True
 
-            head = 0
-            while head < len(queue):
-                u = queue[head]
-                head += 1
+            dist[s] = 0
+            queue = collections.deque([s])
+            in_queue[s] = True
+
+            while queue:
+                u = queue.popleft()
                 in_queue[u] = False
+                for edge in self.adj[u]:
+                    if edge.cap - edge.flow > 0 and dist[edge.v] > dist[u] + edge.cost:
+                        dist[edge.v] = dist[u] + edge.cost
+                        parent[edge.v] = edge
+                        if not in_queue[edge.v]:
+                            queue.append(edge.v)
+                            in_queue[edge.v] = True
 
-                for e_idx in self.adj[u]:
-                    e = self.edges[e_idx]
-                    if e["cap"] - e["flow"] > 1e-9 and dist[e["to"]] > dist[u] + e["cost"] + 1e-9:
-                        dist[e["to"]] = dist[u] + e["cost"]
-                        parent_edge[e["to"]] = e_idx
-                        if not in_queue[e["to"]]:
-                            queue.append(e["to"])
-                            in_queue[e["to"]]: True
-
-            if dist[sink] == float("inf"):
+            if dist[t] == float("inf"):
                 break
 
-            bottleneck = float("inf")
-            curr = sink
-            while curr != source:
-                e_idx = parent_edge[curr]
-                e = self.edges[e_idx]
-                bottleneck = min(bottleneck, e["cap"] - e["flow"])
-                curr = e["from"]
+            push = float("inf")
+            curr = t
+            while curr != s:
+                edge = parent[curr]
+                push = min(push, edge.cap - edge.flow)
+                curr = edge.u
 
-            curr = sink
-            while curr != source:
-                e_idx = parent_edge[curr]
-                self.edges[e_idx]["flow"] += bottleneck
-                rev_idx = self.edges[e_idx]["rev"]
-                self.edges[rev_idx]["flow"] -= bottleneck
-                min_cost += bottleneck * self.edges[e_idx]["cost"]
-                curr = self.edges[e_idx]["from"]
+            curr = t
+            while curr != s:
+                edge = parent[curr]
+                edge.flow += push
+                edge.rev.flow -= push
+                tot_cost += push * edge.cost
+                curr = edge.u
 
-            max_flow += bottleneck
+            tot_flow += push
 
-        flow_details = []
-        for i in range(0, len(self.edges), 2):
-            e = self.edges[i]
-            if e["flow"] > 1e-9:
-                flow_details.append({
-                    "from": e["from"],
-                    "to": e["to"],
-                    "flow": round(e["flow"], 4),
-                    "capacity": e["cap"],
-                    "cost_per_unit": e["cost"]
-                })
-
-        return {
-            "max_flow": round(max_flow, 4),
-            "min_cost": round(min_cost, 4),
-            "flow_paths": flow_details
-        }
+        return tot_flow, tot_cost
